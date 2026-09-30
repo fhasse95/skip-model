@@ -75,4 +75,26 @@ private class PropertySubject<Output, Failure> : Subject<Output, Failure> {
     }
 }
 
+#elseif os(Android)
+
+/// Native Android counterpart for `@Published` in Fuse builds.
+@propertyWrapper
+public final class Published<Value>: @unchecked Sendable {
+    private let subject = PassthroughSubject<Value, Never>()
+
+    public init(wrappedValue: Value) {
+        self.wrappedValue = wrappedValue
+    }
+
+    public var wrappedValue: Value {
+        didSet {
+            self.subject.send(self.wrappedValue)
+        }
+    }
+
+    public var projectedValue: AnyPublisher<Value, Never> {
+        self.subject.eraseToAnyPublisher()
+    }
+}
+
 #endif
